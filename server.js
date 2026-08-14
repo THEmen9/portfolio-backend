@@ -1,17 +1,20 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
 import projectRoutes from './routes/projects.js';
 import contactRoutes from './routes/contact.js';
 import aboutRoutes from './routes/about.js';
 import adminRoutes from './routes/admin.js'
 
-    
 
 const app = express();
 
 // --------middlewares----------//
 app.use(cors());
 app.use(express.json())
+app.use(cookieParser());
 
 //-----------------------Routes---------------------------//
 
