@@ -31,13 +31,40 @@ router.post('/login', async (req, res) => {
     }
     );
 
-  // -------- Cookie set (not in token JSON )-------//
+// -------- Cookie set (not in token JSON )-------//
   res.cookie('token', token, {
      httpOnly: true, maxAge: 24*60*60*1000 
     });
   res.status(200).json({
      message: 'Login successful' 
     });
+});
+
+//------------logout route---------//
+ router.post('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.status(200).json({ message: 'Logged out' });
+});
+//----------Admin-page----------//
+
+router.get('/verify-token', async (req, res) => {
+    try{
+        const token = req.cookies.token;
+        if(!token){
+            return res.status(401).json({
+                valid: false
+            });
+        }
+
+        jwt.verify(token, process.env.JWT_SECRET);
+        return res.status(200).json({
+            valid: true
+        })
+    }catch(err){
+        return res.status(401).json({
+            valid:false
+        })
+    }
 });
 
 export default router;
