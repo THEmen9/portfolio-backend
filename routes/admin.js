@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
 const router = express.Router();
 
 //--------login route----------------//
@@ -45,8 +46,8 @@ router.post('/login', async (req, res) => {
     res.clearCookie('token');
     res.status(200).json({ message: 'Logged out' });
 });
-//----------Admin-page----------//
 
+//----------Admin-page----------//
 router.get('/verify-token', async (req, res) => {
     try{
         const token = req.cookies.token;
