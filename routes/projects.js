@@ -70,6 +70,26 @@ router.delete('/:id', verifyAdmin, async(req, res) =>{
     } catch (err) {
        res.status(400).json({ message: err.message });
     }
-})
+});
+
+//-----------Featured-Route--------------
+router.patch("/:id/featured", verifyAdmin, async (req, res) => {
+  try {
+    if (typeof req.body.featured !== "boolean") {
+    return res.status(400).json({ error: "featured must be a boolean" });
+    }
+    const updated = await Project.findByIdAndUpdate(
+    req.params.id, 
+     { featured: req.body.featured },
+     { new: true, runValidators: true }
+  );
+    if(!updated) {
+      return res.status(404).json({error: 'Project not found' });
+  };
+    res.json(updated);
+  } catch (err){
+    res.status(400).json({ message: err.message });
+  }
+});
 
 export default router;

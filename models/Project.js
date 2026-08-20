@@ -17,7 +17,11 @@ const projectSchema = new mongoose.Schema({
     techStack: [String],
     githubLink : String,
     liveDemo : String,
-
+    
+    featured: {
+    type: Boolean,
+    default: false,
+    }
    
 },{ timestamps: true });
 
