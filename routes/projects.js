@@ -5,91 +5,99 @@ import Project from '../models/Project.js'
 
 const router = express.Router();
 
-// -----------All Project Route-------------//
-router.get('/', async (req, res) => {
-  try {
-    const projects = await Project.find({});
-    res.json(projects);
+  // -----------All Project Route-------------//
+  router.get('/', async (req, res) => {
+    try {
+      const projects = await Project.find({});
+      res.json(projects);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  //---------------featured-project-----------//
+  router.get("/featured", async (req, res) => {
+    try {
+    const featured = await Project.find({ featured: true });
+    res.json(featured);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+  });
 
-//-----------Single-Project-byId-------------//
-router.get('/:id', async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id);
-    if(!project) {
-      return res.status(404).json({error: 'Project not found' })
+  //-----------Single-Project-byId-------------//
+  router.get('/:id', async (req, res) => {
+    try {
+      const project = await Project.findById(req.params.id);
+      if(!project) {
+        return res.status(404).json({error: 'Project not found' })
+      }
+        res.json(project)
+    
+    } catch (err) {
+      res.status(400).json({ message: err.message });
     }
-      res.json(project)
-  
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+  });
 
 
-//----------------POST new project_admin-------------//
+  //----------------POST new project_admin-------------//
+  router.post('/',verifyAdmin, async (req, res) => {
+    try {
+      const newProject = await Project.create(req.body);
+      res.status(201).json(newProject);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  });
 
-router.post('/',verifyAdmin, async (req, res) => {
-  try {
-    const newProject = await Project.create(req.body);
-    res.status(201).json(newProject);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-//---------------PUT(update)route---------------//
-
-router.put('/:id', verifyAdmin, async (req, res) => {
-  try {
-    const updated = await Project.findByIdAndUpdate(
-    req.params.id, 
-    req.body, 
-    { new: true, runValidators: true }
-  );
-    if(!updated) {
-      return res.status(404).json({error: 'Project not found' });
-  };
-    res.json(updated);
-  } catch (err){
-    res.status(400).json({ message: err.message });
-  }
-});
-
-//---------------DELETE-Route--------------//
-router.delete('/:id', verifyAdmin, async(req, res) =>{
-    try{
-      const deleted = await Project.findByIdAndDelete(req.params.id);
-      if(!deleted) {
+  //---------------PUT(update)route---------------//
+  router.put('/:id', verifyAdmin, async (req, res) => {
+    try {
+      const updated = await Project.findByIdAndUpdate(
+      req.params.id, 
+      req.body, 
+      { new: true, runValidators: true }
+    );
+      if(!updated) {
         return res.status(404).json({error: 'Project not found' });
     };
-    res.json(deleted);
-    } catch (err) {
-       res.status(400).json({ message: err.message });
+      res.json(updated);
+    } catch (err){
+      res.status(400).json({ message: err.message });
     }
-});
+  });
 
-//-----------Featured-Route--------------
-router.patch("/:id/featured", verifyAdmin, async (req, res) => {
-  try {
-    if (typeof req.body.featured !== "boolean") {
-    return res.status(400).json({ error: "featured must be a boolean" });
+  //---------------DELETE-Route--------------//
+  router.delete('/:id', verifyAdmin, async(req, res) =>{
+      try{
+        const deleted = await Project.findByIdAndDelete(req.params.id);
+        if(!deleted) {
+          return res.status(404).json({error: 'Project not found' });
+      };
+      res.json(deleted);
+      } catch (err) {
+        res.status(400).json({ message: err.message });
+      }
+  });
+
+  //-----------Featured-Route--------------
+  router.patch("/:id/featured", verifyAdmin, async (req, res) => {
+    try {
+      if (typeof req.body.featured !== "boolean") {
+      return res.status(400).json({ error: "featured must be a boolean" });
+      }
+      const updated = await Project.findByIdAndUpdate(
+      req.params.id, 
+      { featured: req.body.featured },
+      { new: true, runValidators: true }
+    );
+      if(!updated) {
+        return res.status(404).json({error: 'Project not found' });
+    };
+      res.json(updated);
+    } catch (err){
+      res.status(400).json({ message: err.message });
     }
-    const updated = await Project.findByIdAndUpdate(
-    req.params.id, 
-     { featured: req.body.featured },
-     { new: true, runValidators: true }
-  );
-    if(!updated) {
-      return res.status(404).json({error: 'Project not found' });
-  };
-    res.json(updated);
-  } catch (err){
-    res.status(400).json({ message: err.message });
-  }
-});
+  });
 
 export default router;
