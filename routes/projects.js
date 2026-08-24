@@ -1,6 +1,8 @@
 import express from 'express';
 
 import verifyAdmin from '../middlewares/verifyAdmin.js'
+import upload from "../middlewares/upload.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 import Project from '../models/Project.js'
 
 const router = express.Router();
@@ -41,9 +43,14 @@ const router = express.Router();
 
 
   //----------------POST new project_admin-------------//
-  router.post('/',verifyAdmin, async (req, res) => {
+  router.post('/',verifyAdmin, upload.array("images", 5), async (req, res) => {
     try {
-      const newProject = await Project.create(req.body);
+      const uploadPromises = req.files.map((file) => uploadToCloudinary(file.buffer));
+      const imageUrls = await Promise.all(uploadPromises);
+      
+      const newProject = await Project.create(
+        {...req.body, images: imageUrls}
+    );
       res.status(201).json(newProject);
     } catch (err) {
       res.status(400).json({ message: err.message });
@@ -51,11 +58,18 @@ const router = express.Router();
   });
 
   //---------------PUT(update)route---------------//
-  router.put('/:id', verifyAdmin, async (req, res) => {
+  router.put('/:id', verifyAdmin, upload.array("images", 5), async (req, res) => {
     try {
+      const updateData = { ...req.body };
+
+      if (req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => uploadToCloudinary(file.buffer));
+      updateData.images = await Promise.all(uploadPromises);
+    }
+
       const updated = await Project.findByIdAndUpdate(
       req.params.id, 
-      req.body, 
+      updateData,
       { new: true, runValidators: true }
     );
       if(!updated) {
