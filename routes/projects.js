@@ -10,8 +10,15 @@ const router = express.Router();
   // -----------All Project Route-------------//
   router.get('/', async (req, res) => {
     try {
-      const projects = await Project.find({});
-      res.json(projects);
+      const limit = Number(req.query.limit) || 6;
+      const skip = Number(req.query.skip) || 0;
+
+      const [projects, totalCount] = await Promise.all([
+      Project.find().skip(skip).limit(limit),
+      Project.countDocuments()
+    ]);
+
+      res.json({ projects, totalCount });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
