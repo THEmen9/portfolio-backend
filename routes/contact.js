@@ -1,9 +1,12 @@
 import express from 'express';
+import Contact from './../models/Contact.js';
+import sendEmail from '../utils/sendEmail.js';
+
 const router = express.Router();
 
-
 // ---------------POST route----------------//
-router.post('/', (req, res) => {
+router.post('/', async(req, res) => {
+  try{
   const { name, email, message } = req.body;
   
   if (!name || !email || !message) { 
@@ -11,10 +14,18 @@ router.post('/', (req, res) => {
       error: 'All fields required' 
     });
    } 
+   const newContact = await Contact.create({ name, email, message });
+   sendEmail({
+      to: process.env.EMAIL_USER,
+      subject: 'New Contact Form Submission',
+      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+    }).catch(err =>
+       console.error('Email failed:', err)
+      );
+    res.status(201).json(newContact);
 
-   res.status(200).json({
-    message: 'Message received successfully'
-  });
-
+  } catch (err) {
+    res.status(500).json({ err: 'Internal server error' });
+}
 });
 export default router;
