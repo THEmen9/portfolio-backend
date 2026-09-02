@@ -1,18 +1,20 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { createLimiter } from '../utils/rateLimiter.js';
 
+const loginLimiter = createLimiter(15 * 60 * 1000, 5, 'Too many login attempts, try again later');
 const router = express.Router();
 
 //--------login route----------------//
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   //------Email check -----------//
   if (email !== process.env.ADMIN_EMAIL) {
     return res.status(401).json({
-     message: 'Invalid email or password'
+     error: 'Invalid email or password'
     });
   }
 
@@ -20,7 +22,7 @@ router.post('/login', async (req, res) => {
   const isMatch = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
   if (!isMatch) {
     return res.status(401).json({
-     message: 'Invalid email or password'
+     error: 'Invalid email or password'
     });
   }
 

@@ -1,11 +1,13 @@
 import express from 'express';
 import Contact from './../models/Contact.js';
 import sendEmail from '../utils/sendEmail.js';
+import { createLimiter } from '../utils/rateLimiter.js';
 
+const contactLimiter = createLimiter(60 * 60 * 1000, 3, 'Too many messages, try again later');
 const router = express.Router();
 
 // ---------------POST route----------------//
-router.post('/', async(req, res) => {
+router.post('/', contactLimiter, async(req, res) => {
   try{
   const { name, email, message } = req.body;
   
