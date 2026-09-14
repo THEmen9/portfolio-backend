@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 
 // --------middlewares----------//
 app.use(cors({
-  origin: "https://portfolio-psi-lyart-anwnsqcdm.vercel.app",
+  origin: "https://portfolio-psi-lyart-anwnqsqcdm.vercel.app",
   credentials: true
 }));
 app.use(express.json())
