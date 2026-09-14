@@ -36,8 +36,11 @@ router.post('/login', loginLimiter, async (req, res) => {
 
 // -------- Cookie set (not in token JSON )-------//
   res.cookie('token', token, {
-     httpOnly: true, maxAge: 24*60*60*1000 
-    });
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000
+  });
   res.status(200).json({
      message: 'Login successful' 
     });
@@ -45,7 +48,11 @@ router.post('/login', loginLimiter, async (req, res) => {
 
 //------------logout route---------//
  router.post('/logout', (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    });
     res.status(200).json({ message: 'Logged out' });
 });
 
