@@ -51,7 +51,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'lax'
     });
     res.status(200).json({ message: 'Logged out' });
 });
